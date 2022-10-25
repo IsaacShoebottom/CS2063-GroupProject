@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">My Application</string>
-    <string name="title_files">Files</string>
-    <string name="title_youtube">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_compressing">Compressing</string>
+    <string name="title_completed">Completed</string>
+    <string name="title_settings">Settings</string>
 </resources>

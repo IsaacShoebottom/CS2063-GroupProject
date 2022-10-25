@@ -1,13 +1,13 @@
-package com.example.myapplication.ui.dashboard
+package com.example.myapplication.ui.compressing
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class DashboardViewModel : ViewModel() {
+class CompressingViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is dashboard Fragment"
+        value = "This is compressing Fragment"
     }
     val text: LiveData<String> = _text
 }
