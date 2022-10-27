@@ -2,17 +2,27 @@ package com.example.myapplication
 
 import android.os.Bundle
 import android.view.Menu
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityMainBinding
+import com.example.myapplication.ui.compressing.CompressingAdapter
+import com.example.myapplication.ui.compressing.CompressingItem
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    private val compressingItems: MutableList<CompressingItem> = mutableListOf()
+
     private lateinit var binding: ActivityMainBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,5 +44,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.action_bar_menu, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.add) {
+            val compressingRecycler = findViewById<View>(R.id.compressing_recycler_view) as? RecyclerView
+            compressingRecycler?.adapter = CompressingAdapter(compressingItems)
+            compressingRecycler?.layoutManager = LinearLayoutManager(this)
+            val compressingItem = CompressingItem("Testing", 0.5, Date(1))
+            compressingItems.add(compressingItem)
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
