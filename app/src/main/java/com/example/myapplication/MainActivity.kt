@@ -1,7 +1,13 @@
 package com.example.myapplication
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -34,5 +40,36 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.action_bar_menu, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    //adds actions for when you press buttons
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            //runs when pressing "Files"
+            R.id.addFile -> {
+                val intent = Intent()
+                    .setType("*/*")
+                    .setAction(Intent.ACTION_GET_CONTENT)
+
+                resultLauncher.launch(intent)
+
+                Toast.makeText(applicationContext, "Files", Toast.LENGTH_LONG).show()
+                return true
+            }
+            R.id.addYoutube ->{
+                Toast.makeText(applicationContext, "Youtube downloading is currently not available", Toast.LENGTH_LONG).show()
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    //grabs output from pressing files, used for grabbing URI
+    var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // There are no request codes
+            val data: Uri? = result.data?.data
+            Toast.makeText(applicationContext, data.toString(), Toast.LENGTH_LONG).show()
+        }
     }
 }
