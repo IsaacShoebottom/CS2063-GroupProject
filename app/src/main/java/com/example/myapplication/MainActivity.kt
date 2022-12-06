@@ -1,17 +1,21 @@
 package com.example.myapplication
 
+import android.Manifest
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.FileUtils
 import android.provider.MediaStore
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -20,14 +24,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.ui.compressing.CompressingAdapter
+import com.example.myapplication.ui.compressing.CompressingFragment
 import com.example.myapplication.ui.compressing.CompressingItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.arthenica.ffmpegkit.FFmpegKit
+import java.io.File
 import java.io.FileInputStream
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val compressingItems: MutableList<CompressingItem> = mutableListOf()
 
     private lateinit var binding: ActivityMainBinding
 
@@ -56,9 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     //adds actions for when you press buttons
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val compressingRecycler = findViewById<View>(R.id.compressing_recycler_view) as? RecyclerView
-        compressingRecycler?.adapter = CompressingAdapter(compressingItems)
-        compressingRecycler?.layoutManager = LinearLayoutManager(this)
+
 
         return when (item.itemId) {
 
@@ -74,12 +78,6 @@ class MainActivity : AppCompatActivity() {
 
                 Toast.makeText(applicationContext, "Files", Toast.LENGTH_LONG).show()
 
-                if (fileName != null && fileDate != null) {
-                    compressingItems.add(CompressingItem(fileName!!, 0.0, fileDate!!))
-                }
-
-                compressingItems.add(CompressingItem("Testing", 0.5, Date(1)))
-
                 return true
             }
             R.id.addYoutube ->{
@@ -90,13 +88,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private var fileName: String? = null
-    private var fileDate: Date? = null
-    private var fileStream: FileInputStream? = null
-
     //grabs output from pressing files, used for grabbing URI
     private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
+        if (result.resultCode == RESULT_OK) {
             // There are no request codes
             val data: Uri? = result.data?.data
 
@@ -105,16 +99,32 @@ class MainActivity : AppCompatActivity() {
             val fd = fileDescriptor?.fileDescriptor
             val inputStream = FileInputStream(fd)
 
+            val file = File(data.toString())
+            Log.i("Tag", file.absolutePath)
+
+            val fu = com.example.myapplication.utils.FileUtils(this)
+
+            val test = "-i " + fu.getPath(data) + " -c:v libx264 -preset ultrafast -crf 28 -c:a aac -b:a 128k -movflags +faststart " + fu.getPath(data) + "_converted.mp4"
+            FFmpegKit.execute(test)
+
+
             val cursor = contentResolver.query(data, null, null, null, null)
-            val dateIndex = cursor?.getColumnIndex(MediaStore.MediaColumns.DATE_ADDED)
-            fileDate = Date(dateIndex?.toLong()!!)
-            val nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
-            fileName = cursor.getString(nameIndex)
 
+            cursor?.moveToFirst()
 
-            this.fileStream = inputStream
+            val fileDate = Date(System.currentTimeMillis())
+            val fileName = cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+
+            compressingItems.add(CompressingItem(fileName!!, 0.0, fileDate))
+
+            adapter.notifyDataSetChanged()
 
             Toast.makeText(applicationContext, data.toString(), Toast.LENGTH_LONG).show()
         }
+    }
+
+    companion object {
+        val compressingItems: MutableList<CompressingItem> = mutableListOf()
+        val adapter = CompressingAdapter(compressingItems)
     }
 }
