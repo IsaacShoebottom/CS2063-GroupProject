@@ -1,9 +1,11 @@
 package com.example.myapplication
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -20,6 +22,7 @@ import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.ui.compressing.CompressingAdapter
 import com.example.myapplication.ui.compressing.CompressingItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.FileInputStream
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -71,6 +74,10 @@ class MainActivity : AppCompatActivity() {
 
                 Toast.makeText(applicationContext, "Files", Toast.LENGTH_LONG).show()
 
+                if (fileName != null && fileDate != null) {
+                    compressingItems.add(CompressingItem(fileName!!, 0.0, fileDate!!))
+                }
+
                 compressingItems.add(CompressingItem("Testing", 0.5, Date(1)))
 
                 return true
@@ -83,11 +90,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var fileName: String? = null
+    private var fileDate: Date? = null
+    private var fileStream: FileInputStream? = null
+
     //grabs output from pressing files, used for grabbing URI
-    var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             // There are no request codes
             val data: Uri? = result.data?.data
+
+            val contentResolver: ContentResolver = contentResolver
+            val fileDescriptor = contentResolver.openFileDescriptor(data!!, "r")
+            val fd = fileDescriptor?.fileDescriptor
+            val inputStream = FileInputStream(fd)
+
+            val cursor = contentResolver.query(data, null, null, null, null)
+            val dateIndex = cursor?.getColumnIndex(MediaStore.MediaColumns.DATE_ADDED)
+            fileDate = Date(dateIndex?.toLong()!!)
+            val nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+            fileName = cursor.getString(nameIndex)
+
+
+            this.fileStream = inputStream
+
             Toast.makeText(applicationContext, data.toString(), Toast.LENGTH_LONG).show()
         }
     }
