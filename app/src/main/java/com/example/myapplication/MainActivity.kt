@@ -5,11 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
-import android.view.View
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -54,7 +53,14 @@ class MainActivity : AppCompatActivity() {
 
     //adds actions for when you press buttons
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val compressingRecycler = findViewById<View>(R.id.compressing_recycler_view) as? RecyclerView
+        compressingRecycler?.adapter = CompressingAdapter(compressingItems)
+        compressingRecycler?.layoutManager = LinearLayoutManager(this)
+
         return when (item.itemId) {
+
+
+
             //runs when pressing "Files"
             R.id.addFile -> {
                 val intent = Intent()
@@ -64,6 +70,9 @@ class MainActivity : AppCompatActivity() {
                 resultLauncher.launch(intent)
 
                 Toast.makeText(applicationContext, "Files", Toast.LENGTH_LONG).show()
+
+                compressingItems.add(CompressingItem("Testing", 0.5, Date(1)))
+
                 return true
             }
             R.id.addYoutube ->{
