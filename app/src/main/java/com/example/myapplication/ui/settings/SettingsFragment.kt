@@ -7,7 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.databinding.FragmentSettingsBinding
 
@@ -20,12 +22,13 @@ class SettingsFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private val settingsViewModel: SettingsViewModel by activityViewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val homeViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
 
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -41,20 +44,20 @@ class SettingsFragment : Fragment() {
         binding.settingRadioGroup.setOnCheckedChangeListener{ group,checkedID ->
 
             if(checkedID == binding.settingDefaultSizeVideo.id){
-                homeViewModel.size.value = 8.0
+                settingsViewModel.size.value = 25.0
             }else if(checkedID == binding.settingBigSizeVideo.id){
-                homeViewModel.size.value = 50.0
+                settingsViewModel.size.value = 50.0
             }else if(checkedID == binding.settingHugeSize.id){
-                homeViewModel.size.value = 500.0
+                settingsViewModel.size.value = 500.0
             }else{
                 try{
-                    homeViewModel.size.value = binding.settingCustomSizeVideoText.text.toString().toDouble()
+                    settingsViewModel.size.value = binding.settingCustomSizeVideoText.text.toString().toDouble()
                 }catch (e: NumberFormatException){
-                    homeViewModel.size.value = 0.0
+                    settingsViewModel.size.value = 0.0
                 }
             }
 
-            Toast.makeText(root.context,"" + homeViewModel.size.value,Toast.LENGTH_SHORT).show()
+            Toast.makeText(root.context,"" + settingsViewModel.size.value,Toast.LENGTH_SHORT).show()
 
         }
 
@@ -70,11 +73,11 @@ class SettingsFragment : Fragment() {
                 override fun onTextChanged(s: CharSequence, start: Int,
                                            before: Int, count: Int) {
                     try{
-                        homeViewModel.size.value = s.toString().toDouble()
+                        settingsViewModel.size.value = s.toString().toDouble()
                     }catch (e: NumberFormatException){
-                        homeViewModel.size.value = 0.0
+                        settingsViewModel.size.value = 0.0
                     }
-                    Toast.makeText(root.context,"" + homeViewModel.size.value,Toast.LENGTH_SHORT).show()
+                    Toast.makeText(root.context,"" + settingsViewModel.size.value,Toast.LENGTH_SHORT).show()
                 }
             }
         )

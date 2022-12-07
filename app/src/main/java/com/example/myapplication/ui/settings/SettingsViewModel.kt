@@ -13,7 +13,11 @@ class SettingsViewModel : ViewModel() {
 
     //size of the file, grab this for use
     private val _size = MutableLiveData<Double>().apply {
-        value = 8.0
+        value = 25.0
     }
     val size: MutableLiveData<Double> = _size
+
+    fun getSize(): Double{
+        return size.value!!
+    }
 }
