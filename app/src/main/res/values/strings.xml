@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Lantau</string>
     <string name="title_compressing">Compressing</string>
     <string name="title_completed">Completed</string>
     <string name="title_settings">Settings</string>
