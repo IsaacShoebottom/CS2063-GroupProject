@@ -4,7 +4,9 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,6 +16,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.navigation.findNavController
@@ -27,6 +30,8 @@ import com.example.myapplication.ui.completed.CompletedAdapter
 import com.example.myapplication.ui.completed.CompletedItem
 import com.example.myapplication.ui.compressing.CompressingAdapter
 import com.example.myapplication.ui.compressing.CompressingItem
+import com.example.myapplication.ui.settings.SettingsFragment
+import com.example.myapplication.ui.settings.SettingsViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.File
 import java.util.*
@@ -35,6 +40,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private lateinit var binding: ActivityMainBinding
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             //runs when pressing "Files"
             R.id.addFile -> {
                 val intent = Intent()
-                    .setType("*/*")
+                    .setType("video/*")
                     .setAction(Intent.ACTION_GET_CONTENT)
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
@@ -89,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
                 resultLauncher.launch(intent)
 
-                Toast.makeText(applicationContext, "Files", Toast.LENGTH_LONG).show()
+                //Toast.makeText(applicationContext, "Files", Toast.LENGTH_LONG).show()
 
                 return true
             }
@@ -116,38 +122,53 @@ class MainActivity : AppCompatActivity() {
             cursor?.moveToFirst()
 
             val fileDate = Date(System.currentTimeMillis())
-            val fileName = cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+            val fileName =
+                cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+            val fileSize =
+                cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+                    ?.toDouble()
 
-            val item = CompressingItem(fileName!!, 0.0, fileDate)
+            if (fileSize!! / 1000000 > settingsViewModel.getSize()) {
 
-            val outputFile = File(this.getExternalFilesDir(null), "converted_$fileName")
+                val mmr = MediaMetadataRetriever()
+                mmr.setDataSource(this, data)
+                val duration =
+                    mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toDouble()
+                Log.i("ethan", duration.toString())
 
-            compressingItems.add(item)
+                Log.i("ethan", settingsViewModel.getSize().toString())
+                Log.i("ethan", fileSize.toString())
+                val bitrate = (settingsViewModel.getSize()*1000000) / (duration!!/1000)
 
-            val handler = Handler(Looper.getMainLooper())
+                val item = CompressingItem(fileName!!, 0.0, fileDate)
 
+                val outputFile = File(this.getExternalFilesDir(null), "converted_$fileName")
 
-            val command = "-i $inUri -c:v mpeg4 ${outputFile.absolutePath} -y"
-            val session = FFmpegKit.executeAsync(command) {
-                compressingItems.remove(item)
-                completedAdapter.refreshList(this)
+                compressingItems.add(item)
 
-                handler.post {
-                    Toast.makeText(this, "Finished converting $fileName", Toast.LENGTH_SHORT).show()
-                    compressingAdapter.notifyDataSetChanged()
+                val handler = Handler(Looper.getMainLooper())
+
+                val command = "-i $inUri -b:v $bitrate ${outputFile.absolutePath} -y"
+                Log.i("ethan",command)
+                val session = FFmpegKit.executeAsync(command) {
+                    compressingItems.remove(item)
+                    adapter.refreshList(this)
+
+                    handler.post {
+                        Toast.makeText(this, "Finished converting $fileName", Toast.LENGTH_SHORT).show()
+                        adapter.notifyDataSetChanged()
+                    }
                 }
+
+
+                Log.i("Tag", Arrays.deepToString(session.arguments))
+                Log.i("Tag", session.output)
+
+
+                adapter.notifyDataSetChanged()
+            }else{
+                Toast.makeText(applicationContext,"File is less than target size",Toast.LENGTH_LONG).show()
             }
-
-
-            Log.i("Tag", Arrays.deepToString(session.arguments))
-            Log.i("Tag", session.output)
-
-
-
-
-
-
-            compressingAdapter.notifyDataSetChanged()
         }
     }
 
