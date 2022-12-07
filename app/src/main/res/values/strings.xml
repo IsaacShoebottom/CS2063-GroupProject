@@ -10,4 +10,6 @@
     <string name="settings_huge_size">500mb</string>
     <string name="settings_custom_size">Custom</string>
     <string name="settings_custom_size_hint">Enter Size in MB</string>
+    <string name="files">Files</string>
+    <string name="youtube">Youtube</string>
 </resources>

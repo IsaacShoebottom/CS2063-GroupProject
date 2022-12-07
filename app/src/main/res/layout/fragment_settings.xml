@@ -10,6 +10,7 @@
         android:layout_height="match_parent">
 
         <RadioGroup
+            android:id="@+id/setting_radio_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -23,6 +24,7 @@
                 android:id="@+id/setting_default_size_video"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="@string/settings_default_size" />
 
             <RadioButton

@@ -10,4 +10,10 @@ class SettingsViewModel : ViewModel() {
         value = "This is settings Fragment"
     }
     val text: LiveData<String> = _text
+
+    //size of the file, grab this for use
+    private val _size = MutableLiveData<Double>().apply {
+        value = 8.0
+    }
+    val size: MutableLiveData<Double> = _size
 }
