@@ -1,4 +1,4 @@
-package com.example.myapplication
+package ca.unb.lantau
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -24,12 +24,13 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegKitConfig
+import com.example.myapplication.R
 import com.example.myapplication.databinding.ActivityMainBinding
-import com.example.myapplication.ui.completed.CompletedAdapter
-import com.example.myapplication.ui.completed.CompletedItem
-import com.example.myapplication.ui.compressing.CompressingAdapter
-import com.example.myapplication.ui.compressing.CompressingItem
-import com.example.myapplication.ui.settings.SettingsViewModel
+import ca.unb.lantau.ui.completed.CompletedAdapter
+import ca.unb.lantau.ui.completed.CompletedItem
+import ca.unb.lantau.ui.compressing.CompressingAdapter
+import ca.unb.lantau.ui.compressing.CompressingItem
+import ca.unb.lantau.ui.settings.SettingsViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.File
 import java.util.*

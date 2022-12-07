@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.compressing
+package ca.unb.lantau.ui.compressing
 
 import java.util.*
 

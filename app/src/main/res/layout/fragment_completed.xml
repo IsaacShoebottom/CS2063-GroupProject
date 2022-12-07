@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.completed.CompletedFragment">
+    tools:context="ca.unb.lantau.ui.completed.CompletedFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/compressed_recycler_view"

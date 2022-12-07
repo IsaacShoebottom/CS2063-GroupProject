@@ -1,4 +1,4 @@
-package com.example.myapplication
+package ca.unb.lantau
 
 import org.junit.Test
 

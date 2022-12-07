@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.compressing
+package ca.unb.lantau.ui.compressing
 
 import android.view.LayoutInflater
 import android.view.View

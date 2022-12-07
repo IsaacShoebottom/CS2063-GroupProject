@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.compressing
+package ca.unb.lantau.ui.compressing
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.MainActivity
+import ca.unb.lantau.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentCompressingBinding
 

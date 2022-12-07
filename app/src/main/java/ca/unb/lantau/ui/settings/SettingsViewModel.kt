@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.settings
+package ca.unb.lantau.ui.settings
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

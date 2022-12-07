@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.completed
+package ca.unb.lantau.ui.completed
 
 import android.net.Uri
 import android.widget.ImageButton
