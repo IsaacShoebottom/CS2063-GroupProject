@@ -1,15 +1,17 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Lantau</string>
     <string name="title_compressing">Compressing</string>
     <string name="title_completed">Completed</string>
     <string name="title_settings">Settings</string>
     <string name="settings_video_size">Video Size</string>
     <string name="settings_image_size">Image Size</string>
-    <string name="settings_default_size">8mb</string>
+    <string name="settings_default_size">25mb</string>
     <string name="settings_big_size">50mb</string>
     <string name="settings_huge_size">500mb</string>
     <string name="settings_custom_size">Custom</string>
     <string name="settings_custom_size_hint">Enter Size in MB</string>
     <string name="files">Files</string>
     <string name="youtube">Youtube</string>
+    <string name="share_button">Share</string>
+    <string name="delete">Delete</string>
 </resources>
