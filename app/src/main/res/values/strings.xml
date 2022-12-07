@@ -12,5 +12,6 @@
     <string name="settings_custom_size_hint">Enter Size in MB</string>
     <string name="files">Files</string>
     <string name="youtube">Youtube</string>
-    <string name="share_button">Share Button</string>
+    <string name="share_button">Share</string>
+    <string name="delete">Delete</string>
 </resources>

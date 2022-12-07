@@ -23,17 +23,12 @@ class CompressingFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        ViewModelProvider(this)[CompressingViewModel::class.java]
-
         _binding = FragmentCompressingBinding.inflate(inflater, container, false)
 
 
         val compressingRecycler = binding.root.findViewById<View>(R.id.compressing_recycler_view) as? RecyclerView
         compressingRecycler?.adapter = MainActivity.compressingAdapter
         compressingRecycler?.layoutManager = LinearLayoutManager(binding.root.context)
-
-
-
 
         return binding.root
     }

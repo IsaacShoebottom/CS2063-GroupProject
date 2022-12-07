@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -30,7 +29,6 @@ import com.example.myapplication.ui.completed.CompletedAdapter
 import com.example.myapplication.ui.completed.CompletedItem
 import com.example.myapplication.ui.compressing.CompressingAdapter
 import com.example.myapplication.ui.compressing.CompressingItem
-import com.example.myapplication.ui.settings.SettingsFragment
 import com.example.myapplication.ui.settings.SettingsViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.File
@@ -152,11 +150,11 @@ class MainActivity : AppCompatActivity() {
                 Log.i("ethan",command)
                 val session = FFmpegKit.executeAsync(command) {
                     compressingItems.remove(item)
-                    adapter.refreshList(this)
+                    completedAdapter.refreshList(this)
 
                     handler.post {
                         Toast.makeText(this, "Finished converting $fileName", Toast.LENGTH_SHORT).show()
-                        adapter.notifyDataSetChanged()
+                        compressingAdapter.notifyDataSetChanged()
                     }
                 }
 
@@ -165,7 +163,7 @@ class MainActivity : AppCompatActivity() {
                 Log.i("Tag", session.output)
 
 
-                adapter.notifyDataSetChanged()
+                compressingAdapter.notifyDataSetChanged()
             }else{
                 Toast.makeText(applicationContext,"File is less than target size",Toast.LENGTH_LONG).show()
             }

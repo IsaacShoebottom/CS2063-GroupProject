@@ -26,8 +26,6 @@ class CompletedFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val dashboardViewModel = ViewModelProvider(this).get(CompletedViewModel::class.java)
-
         _binding = FragmentCompletedBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -36,10 +34,6 @@ class CompletedFragment : Fragment() {
         completedRecycler?.layoutManager = LinearLayoutManager(binding.root.context)
 
         MainActivity.completedAdapter.refreshList(binding.root.context)
-
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
-            //do nothing
-        }
         return binding.root
     }
 

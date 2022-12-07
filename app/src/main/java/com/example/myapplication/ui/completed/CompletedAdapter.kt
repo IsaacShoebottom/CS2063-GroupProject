@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.completed
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -20,7 +21,8 @@ class CompletedAdapter(private val mCompletedList: MutableList<CompletedItem>): 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val filename: TextView = itemView.findViewById(R.id.compressed_filename)
         val date: TextView = itemView.findViewById(R.id.compressed_date)
-        var shareButton: ImageButton = itemView.findViewById(R.id.compressed_share)
+        val shareButton: ImageButton = itemView.findViewById(R.id.compressed_share)
+        val deleteButton: ImageButton = itemView.findViewById(R.id.compressed_delete)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,12 +35,30 @@ class CompletedAdapter(private val mCompletedList: MutableList<CompletedItem>): 
         holder.filename.text = compressingItem.filename
         holder.date.text = compressingItem.date.toString()
         holder.shareButton.setOnClickListener { shareFile(holder.itemView.context, compressingItem.uri) }
+        holder.deleteButton.setOnClickListener { deleteFile(holder.itemView.context, compressingItem.uri) }
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun deleteFile(context: Context?, uri: Uri) {
+        val policy = VmPolicy.Builder().build()
+        StrictMode.setVmPolicy(policy) // this is a hack to allow the file to be deleted
+
+        AlertDialog.Builder(context)
+            .setTitle("Delete file")
+            .setMessage("Are you sure you want to delete this file?")
+            .setPositiveButton("Yes") { _, _ ->
+                val file = java.io.File(uri.path!!)
+                file.delete()
+                refreshList(context!!)
+            }
+            .setNegativeButton("No") { _, _ -> }
+            .show()
+    }
+
     private fun shareFile(context: Context?, uri: Uri) {
-        val builder = VmPolicy.Builder()
-        StrictMode.setVmPolicy(builder.build()) // this is a hack to allow sharing files from the app
+        val policy = VmPolicy.Builder().build()
+        StrictMode.setVmPolicy(policy) // this is a hack to allow sharing files from the app
 
 
         val intent = Intent(Intent.ACTION_SEND)
@@ -57,7 +77,7 @@ class CompletedAdapter(private val mCompletedList: MutableList<CompletedItem>): 
         mCompletedList.clear()
         context.getExternalFilesDir(null)?.listFiles()?.forEach {
             if (it.name.endsWith(".mp4")) {
-                val completedItem = CompletedItem(it.name, Date(it.lastModified()), ImageButton(context), Uri.fromFile(it))
+                val completedItem = CompletedItem(it.name, Date(it.lastModified()), ImageButton(context), ImageButton(context), Uri.fromFile(it))
                 mCompletedList.add(completedItem)
             }
         }
