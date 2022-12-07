@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.MainActivity
-import com.example.myapplication.MainActivity.Companion.compressingItems
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentCompressingBinding
 
@@ -30,12 +29,13 @@ class CompressingFragment : Fragment() {
 
 
         val compressingRecycler = binding.root.findViewById<View>(R.id.compressing_recycler_view) as? RecyclerView
-        compressingRecycler?.adapter = MainActivity.adapter
+        compressingRecycler?.adapter = MainActivity.compressingAdapter
         compressingRecycler?.layoutManager = LinearLayoutManager(binding.root.context)
 
+
+
+
         return binding.root
-
-
     }
 
     override fun onDestroyView() {

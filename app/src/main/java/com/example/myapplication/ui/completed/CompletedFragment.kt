@@ -7,6 +7,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.MainActivity
+import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentCompletedBinding
 
 class CompletedFragment : Fragment() {
@@ -22,17 +26,21 @@ class CompletedFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val dashboardViewModel =
-                ViewModelProvider(this).get(CompletedViewModel::class.java)
+        val dashboardViewModel = ViewModelProvider(this).get(CompletedViewModel::class.java)
 
         _binding = FragmentCompletedBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textCompleted
+        val completedRecycler = binding.root.findViewById<View>(R.id.compressed_recycler_view) as? RecyclerView
+        completedRecycler?.adapter = MainActivity.completedAdapter
+        completedRecycler?.layoutManager = LinearLayoutManager(binding.root.context)
+
+        MainActivity.completedAdapter.refreshList(binding.root.context)
+
         dashboardViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+            //do nothing
         }
-        return root
+        return binding.root
     }
 
     override fun onDestroyView() {

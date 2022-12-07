@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.compressing
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,8 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
+import com.example.myapplication.ui.completed.CompletedItem
+import java.util.*
 
 class CompressingAdapter(private val mCompressingItems: MutableList<CompressingItem>): RecyclerView.Adapter<CompressingAdapter.ViewHolder>() {
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {

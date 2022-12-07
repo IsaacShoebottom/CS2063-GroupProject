@@ -23,6 +23,8 @@ import androidx.navigation.ui.setupWithNavController
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegKitConfig
 import com.example.myapplication.databinding.ActivityMainBinding
+import com.example.myapplication.ui.completed.CompletedAdapter
+import com.example.myapplication.ui.completed.CompletedItem
 import com.example.myapplication.ui.compressing.CompressingAdapter
 import com.example.myapplication.ui.compressing.CompressingItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -128,10 +130,11 @@ class MainActivity : AppCompatActivity() {
             val command = "-i $inUri -c:v mpeg4 ${outputFile.absolutePath} -y"
             val session = FFmpegKit.executeAsync(command) {
                 compressingItems.remove(item)
+                completedAdapter.refreshList(this)
 
                 handler.post {
                     Toast.makeText(this, "Finished converting $fileName", Toast.LENGTH_SHORT).show()
-                    adapter.notifyDataSetChanged()
+                    compressingAdapter.notifyDataSetChanged()
                 }
             }
 
@@ -144,13 +147,15 @@ class MainActivity : AppCompatActivity() {
 
 
 
-            adapter.notifyDataSetChanged()
+            compressingAdapter.notifyDataSetChanged()
         }
     }
 
     companion object {
         val compressingItems: MutableList<CompressingItem> = mutableListOf()
+        val compressingAdapter = CompressingAdapter(compressingItems)
 
-        val adapter = CompressingAdapter(compressingItems)
+        val completedItems: MutableList<CompletedItem> = mutableListOf()
+        val completedAdapter = CompletedAdapter(completedItems)
     }
 }
