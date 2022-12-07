@@ -1,11 +1,13 @@
 package com.example.myapplication
 
 import android.Manifest
-import android.content.ContentResolver
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
@@ -14,20 +16,17 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.net.toUri
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegKitConfig
-import com.arthenica.ffmpegkit.FFmpegSession
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.ui.compressing.CompressingAdapter
 import com.example.myapplication.ui.compressing.CompressingItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.File
-import java.io.FileInputStream
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -101,6 +100,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     //grabs output from pressing files, used for grabbing URI
+    @SuppressLint("NotifyDataSetChanged") // Needed because of custom adapter
     private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
 
@@ -109,27 +109,6 @@ class MainActivity : AppCompatActivity() {
 
             val inUri = FFmpegKitConfig.getSafParameterForRead(this, data)
 
-
-
-
-            val outputFile = File(this.filesDir, "output.mp4")
-
-            if(outputFile.createNewFile()) {
-                Log.i("Tag", "File created")
-            } else {
-                Log.i("Tag", "File not created")
-            }
-
-
-            val outUri = FFmpegKitConfig.getSafParameter(this, outputFile.toUri(), "rw")
-
-            val command = "-i $inUri -c:v mpeg4 $outUri -y"
-            val session = FFmpegKit.execute(command)
-
-            Log.i("Tag", Arrays.deepToString(session.arguments))
-            Log.i("Tag", session.output)
-
-
             val cursor = contentResolver.query(data!!, null, null, null, null)
 
             cursor?.moveToFirst()
@@ -137,7 +116,33 @@ class MainActivity : AppCompatActivity() {
             val fileDate = Date(System.currentTimeMillis())
             val fileName = cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
 
-            compressingItems.add(CompressingItem(fileName!!, 0.0, fileDate))
+            val item = CompressingItem(fileName!!, 0.0, fileDate)
+
+            val outputFile = File(this.getExternalFilesDir(null), "converted_$fileName")
+
+            compressingItems.add(item)
+
+            val handler = Handler(Looper.getMainLooper())
+
+
+            val command = "-i $inUri -c:v mpeg4 ${outputFile.absolutePath} -y"
+            val session = FFmpegKit.executeAsync(command) {
+                compressingItems.remove(item)
+
+                handler.post {
+                    Toast.makeText(this, "Finished converting $fileName", Toast.LENGTH_SHORT).show()
+                    adapter.notifyDataSetChanged()
+                }
+            }
+
+
+            Log.i("Tag", Arrays.deepToString(session.arguments))
+            Log.i("Tag", session.output)
+
+
+
+
+
 
             adapter.notifyDataSetChanged()
         }
@@ -145,6 +150,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         val compressingItems: MutableList<CompressingItem> = mutableListOf()
+
         val adapter = CompressingAdapter(compressingItems)
     }
 }
