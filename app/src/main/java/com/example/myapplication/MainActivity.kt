@@ -46,7 +46,8 @@ class MainActivity : AppCompatActivity() {
 
 
         // VERIFY PERMISSIONS
-        val permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        val permission =
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
         if (permission != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this,
@@ -63,8 +64,11 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.navigation_compressing, R.id.navigation_completed,R.id.navigation_settings))
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.navigation_compressing, R.id.navigation_completed, R.id.navigation_settings
+            )
+        )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }
@@ -81,7 +85,6 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
 
 
-
             //runs when pressing "Files"
             R.id.addFile -> {
                 val intent = Intent()
@@ -93,12 +96,14 @@ class MainActivity : AppCompatActivity() {
 
                 resultLauncher.launch(intent)
 
-                //Toast.makeText(applicationContext, "Files", Toast.LENGTH_LONG).show()
-
                 return true
             }
-            R.id.addYoutube ->{
-                Toast.makeText(applicationContext, "Youtube downloading is currently not available", Toast.LENGTH_LONG).show()
+            R.id.addYoutube -> {
+                Toast.makeText(
+                    applicationContext,
+                    "Youtube downloading is currently not available",
+                    Toast.LENGTH_LONG
+                ).show()
                 return true
             }
             else -> super.onOptionsItemSelected(item)
@@ -107,68 +112,78 @@ class MainActivity : AppCompatActivity() {
 
     //grabs output from pressing files, used for grabbing URI
     @SuppressLint("NotifyDataSetChanged") // Needed because of custom adapter
-    private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
+    private var resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
 
-            // There are no request codes
-            val data: Uri? = result.data?.data
+                // There are no request codes
+                val data: Uri? = result.data?.data
 
-            val inUri = FFmpegKitConfig.getSafParameterForRead(this, data)
+                val inUri = FFmpegKitConfig.getSafParameterForRead(this, data)
 
-            val cursor = contentResolver.query(data!!, null, null, null, null)
+                val cursor = contentResolver.query(data!!, null, null, null, null)
 
-            cursor?.moveToFirst()
+                cursor?.moveToFirst()
 
-            val fileDate = Date(System.currentTimeMillis())
-            val fileName =
-                cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
-            val fileSize =
-                cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
-                    ?.toDouble()
+                val fileDate = Date(System.currentTimeMillis())
+                val fileName =
+                    cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+                val fileSize =
+                    cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+                        ?.toDouble()
 
-            if (fileSize!! / 1000000 > settingsViewModel.getSize()) {
+                if (fileSize!! / 1000000 > settingsViewModel.getSize()) {
 
-                val mmr = MediaMetadataRetriever()
-                mmr.setDataSource(this, data)
-                val duration =
-                    mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toDouble()
-                Log.i("ethan", duration.toString())
+                    val mmr = MediaMetadataRetriever()
+                    mmr.setDataSource(this, data)
+                    val duration =
+                        mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                            ?.toDouble()
+                    Log.i("ethan", duration.toString())
 
-                Log.i("ethan", settingsViewModel.getSize().toString())
-                Log.i("ethan", fileSize.toString())
-                val bitrate = (settingsViewModel.getSize()*1000000) / (duration!!/1000)
+                    Log.i("ethan", settingsViewModel.getSize().toString())
+                    Log.i("ethan", fileSize.toString())
+                    val bitrate = (settingsViewModel.getSize() * 1000000) / (duration!! / 1000)
 
-                val item = CompressingItem(fileName!!, 0.0, fileDate)
+                    val item = CompressingItem(fileName!!, 0.0, fileDate)
 
-                val outputFile = File(this.getExternalFilesDir(null), "converted_$fileName")
+                    val outputFile = File(this.getExternalFilesDir(null), "converted_$fileName")
 
-                compressingItems.add(item)
+                    compressingItems.add(item)
 
-                val handler = Handler(Looper.getMainLooper())
+                    val handler = Handler(Looper.getMainLooper())
 
-                val command = "-i $inUri -b:v $bitrate ${outputFile.absolutePath} -y"
-                Log.i("ethan",command)
-                val session = FFmpegKit.executeAsync(command) {
-                    compressingItems.remove(item)
-                    completedAdapter.refreshList(this)
+                    val command = "-i $inUri -b:v $bitrate ${outputFile.absolutePath} -y"
+                    Log.i("ethan", command)
+                    val session = FFmpegKit.executeAsync(command) {
+                        compressingItems.remove(item)
+                        completedAdapter.refreshList(this)
 
-                    handler.post {
-                        Toast.makeText(this, "Finished converting $fileName", Toast.LENGTH_SHORT).show()
-                        compressingAdapter.notifyDataSetChanged()
+                        handler.post {
+                            Toast.makeText(
+                                this,
+                                "Finished converting $fileName",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            compressingAdapter.notifyDataSetChanged()
+                        }
                     }
+
+
+                    Log.i("Tag", Arrays.deepToString(session.arguments))
+                    Log.i("Tag", session.output)
+
+
+                    compressingAdapter.notifyDataSetChanged()
+                } else {
+                    Toast.makeText(
+                        applicationContext,
+                        "File is less than target size",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
-
-
-                Log.i("Tag", Arrays.deepToString(session.arguments))
-                Log.i("Tag", session.output)
-
-
-                compressingAdapter.notifyDataSetChanged()
-            }else{
-                Toast.makeText(applicationContext,"File is less than target size",Toast.LENGTH_LONG).show()
             }
         }
-    }
 
     companion object {
         val compressingItems: MutableList<CompressingItem> = mutableListOf()

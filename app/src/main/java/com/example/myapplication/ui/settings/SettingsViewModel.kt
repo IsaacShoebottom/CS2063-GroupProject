@@ -17,7 +17,7 @@ class SettingsViewModel : ViewModel() {
     }
     val size: MutableLiveData<Double> = _size
 
-    fun getSize(): Double{
+    fun getSize(): Double {
         return size.value!!
     }
 }

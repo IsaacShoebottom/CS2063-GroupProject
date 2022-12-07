@@ -56,9 +56,6 @@ class SettingsFragment : Fragment() {
                     settingsViewModel.size.value = 0.0
                 }
             }
-
-            Toast.makeText(root.context,"" + settingsViewModel.size.value,Toast.LENGTH_SHORT).show()
-
         }
 
         //updates size when the custom value changes
@@ -77,7 +74,6 @@ class SettingsFragment : Fragment() {
                     }catch (e: NumberFormatException){
                         settingsViewModel.size.value = 0.0
                     }
-                    Toast.makeText(root.context,"" + settingsViewModel.size.value,Toast.LENGTH_SHORT).show()
                 }
             }
         )

@@ -17,8 +17,9 @@ import com.example.myapplication.R
 import java.util.*
 
 
-class CompletedAdapter(private val mCompletedList: MutableList<CompletedItem>): RecyclerView.Adapter<CompletedAdapter.ViewHolder>() {
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+class CompletedAdapter(private val mCompletedList: MutableList<CompletedItem>) :
+    RecyclerView.Adapter<CompletedAdapter.ViewHolder>() {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val filename: TextView = itemView.findViewById(R.id.compressed_filename)
         val date: TextView = itemView.findViewById(R.id.compressed_date)
         val shareButton: ImageButton = itemView.findViewById(R.id.compressed_share)
@@ -26,7 +27,8 @@ class CompletedAdapter(private val mCompletedList: MutableList<CompletedItem>): 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val compressingItemView = LayoutInflater.from(parent.context).inflate(R.layout.item_compressed, parent, false)
+        val compressingItemView =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_compressed, parent, false)
         return ViewHolder(compressingItemView)
     }
 
@@ -34,8 +36,18 @@ class CompletedAdapter(private val mCompletedList: MutableList<CompletedItem>): 
         val compressingItem: CompletedItem = mCompletedList[position]
         holder.filename.text = compressingItem.filename
         holder.date.text = compressingItem.date.toString()
-        holder.shareButton.setOnClickListener { shareFile(holder.itemView.context, compressingItem.uri) }
-        holder.deleteButton.setOnClickListener { deleteFile(holder.itemView.context, compressingItem.uri) }
+        holder.shareButton.setOnClickListener {
+            shareFile(
+                holder.itemView.context,
+                compressingItem.uri
+            )
+        }
+        holder.deleteButton.setOnClickListener {
+            deleteFile(
+                holder.itemView.context,
+                compressingItem.uri
+            )
+        }
 
     }
 
@@ -77,7 +89,13 @@ class CompletedAdapter(private val mCompletedList: MutableList<CompletedItem>): 
         mCompletedList.clear()
         context.getExternalFilesDir(null)?.listFiles()?.forEach {
             if (it.name.endsWith(".mp4")) {
-                val completedItem = CompletedItem(it.name, Date(it.lastModified()), ImageButton(context), ImageButton(context), Uri.fromFile(it))
+                val completedItem = CompletedItem(
+                    it.name,
+                    Date(it.lastModified()),
+                    ImageButton(context),
+                    ImageButton(context),
+                    Uri.fromFile(it)
+                )
                 mCompletedList.add(completedItem)
             }
         }

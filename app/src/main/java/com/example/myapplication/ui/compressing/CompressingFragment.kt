@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.MainActivity
@@ -17,16 +16,20 @@ class CompressingFragment : Fragment() {
     private var _binding: FragmentCompressingBinding? = null
 
 
-
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentCompressingBinding.inflate(inflater, container, false)
 
 
-        val compressingRecycler = binding.root.findViewById<View>(R.id.compressing_recycler_view) as? RecyclerView
+        val compressingRecycler =
+            binding.root.findViewById<View>(R.id.compressing_recycler_view) as? RecyclerView
         compressingRecycler?.adapter = MainActivity.compressingAdapter
         compressingRecycler?.layoutManager = LinearLayoutManager(binding.root.context)
 

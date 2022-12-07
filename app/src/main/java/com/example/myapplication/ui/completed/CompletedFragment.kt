@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.MainActivity
@@ -22,14 +20,15 @@ class CompletedFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCompletedBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val completedRecycler = binding.root.findViewById<View>(R.id.compressed_recycler_view) as? RecyclerView
+        val completedRecycler =
+            binding.root.findViewById<View>(R.id.compressed_recycler_view) as? RecyclerView
         completedRecycler?.adapter = MainActivity.completedAdapter
         completedRecycler?.layoutManager = LinearLayoutManager(binding.root.context)
 
