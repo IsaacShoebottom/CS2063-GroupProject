@@ -40,7 +40,10 @@ class SettingsFragment : Fragment() {
         //updates size when size selection changes
         binding.settingRadioGroup.setOnCheckedChangeListener{ group,checkedID ->
 
-            if(checkedID == binding.settingDefaultSizeVideo.id){
+            if (checkedID == binding.settingSmallVideoSize.id) {
+                settingsViewModel.size.value = 8.0
+            }
+            else if(checkedID == binding.settingDefaultSizeVideo.id){
                 settingsViewModel.size.value = 25.0
             }else if(checkedID == binding.settingBigSizeVideo.id){
                 settingsViewModel.size.value = 50.0
