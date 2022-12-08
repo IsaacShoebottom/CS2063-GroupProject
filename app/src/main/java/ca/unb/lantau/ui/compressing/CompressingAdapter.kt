@@ -22,6 +22,8 @@ class CompressingAdapter(private val mCompressingItems: MutableList<CompressingI
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val compressingItemView =
             LayoutInflater.from(parent.context).inflate(R.layout.item_compressing, parent, false)
+        // Use gesture controls to swipe to delete
+        // Reference here: https://www.tutorialspoint.com/how-to-detect-swipe-direction-between-left-right-and-up-down-in-android
         return ViewHolder(compressingItemView)
     }
 
