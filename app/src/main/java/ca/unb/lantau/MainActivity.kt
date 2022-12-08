@@ -13,6 +13,8 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -22,21 +24,20 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.FFmpegKitConfig
-import com.example.myapplication.R
-import com.example.myapplication.databinding.ActivityMainBinding
 import ca.unb.lantau.ui.completed.CompletedAdapter
 import ca.unb.lantau.ui.completed.CompletedItem
 import ca.unb.lantau.ui.compressing.CompressingAdapter
 import ca.unb.lantau.ui.compressing.CompressingItem
 import ca.unb.lantau.ui.settings.SettingsViewModel
+import com.arthenica.ffmpegkit.*
+import com.example.myapplication.R
+import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.File
 import java.util.*
+import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
-
 
     private lateinit var binding: ActivityMainBinding
     private val settingsViewModel: SettingsViewModel by viewModels()
@@ -144,9 +145,9 @@ class MainActivity : AppCompatActivity() {
 
                     Log.i("ethan", settingsViewModel.getSize().toString())
                     Log.i("ethan", fileSize.toString())
-                    val bitrate = (settingsViewModel.getSize() * 1000000) / (duration!! / 1000)
+                    val bitrate = (settingsViewModel.getSize() * 1_000_000) / (duration!! / 1_000)
 
-                    val item = CompressingItem(fileName!!, 0.0, fileDate)
+                    val item = CompressingItem(fileName!!, 0.0, fileDate, "Not started", ImageButton(this),null)
 
                     val outputFile = File(this.getExternalFilesDir(null), "converted_$fileName")
 
@@ -154,27 +155,64 @@ class MainActivity : AppCompatActivity() {
 
                     val handler = Handler(Looper.getMainLooper())
 
-                    val command = "-i $inUri -b:v $bitrate ${outputFile.absolutePath} -y"
-                    Log.i("ethan", command)
-                    val session = FFmpegKit.executeAsync(command) {
-                        compressingItems.remove(item)
-                        completedAdapter.refreshList(this)
+                    val tempFile = File(this.cacheDir, "temp_$fileName")
+                    val tempVideoFile = File(this.cacheDir, "tempVideo_$fileName")
 
-                        handler.post {
-                            Toast.makeText(
-                                this,
-                                "Finished converting $fileName",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            compressingAdapter.notifyDataSetChanged()
+                    val firstPass = "-i $inUri -codec:v libx264 -passlogfile ${tempFile.absolutePath} -preset veryfast -b:v $bitrate -maxrate $bitrate -minrate $bitrate -codec:a aac -pass 1 ${tempVideoFile.absolutePath} -y"
+                    val secondPass = "-i ${tempVideoFile.absolutePath} -codec:v libx264 -passlogfile ${tempFile.absolutePath} -preset veryfast -b:v $bitrate -maxrate $bitrate -minrate $bitrate -codec:a aac -pass 2  ${outputFile.absolutePath} -y"
+                    Log.i("Lantau", firstPass)
+                    Log.i("Lantau", secondPass)
+
+
+                    val firstPassSession = FFmpegKit.executeAsync(firstPass) { session ->
+                        if (session.returnCode.isValueSuccess) {
+                            val secondPassSession = FFmpegKit.executeAsync(secondPass) { session2 ->
+                                if (session2.returnCode.isValueSuccess) {
+                                    handler.post {
+                                        handler.post {
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Finished converting $fileName",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+
+                                            compressingItems.remove(item)
+                                            compressingAdapter.notifyDataSetChanged()
+                                            completedAdapter.refreshList(applicationContext)
+                                            tempFile.delete()
+                                            tempVideoFile.delete()
+                                        }
+                                    }
+                                } else {
+                                    handler.post {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Failed to convert $fileName during second pass",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        compressingItems.remove(item)
+                                        compressingAdapter.notifyDataSetChanged()
+                                    }
+                                }
+                            }
+                            item.status = "Second pass running"
+                            item.session = secondPassSession
+                            Log.i("Lantau", Arrays.deepToString(secondPassSession.arguments))
+                        } else {
+                            handler.post {
+                                Toast.makeText(
+                                    applicationContext,
+                                    "Failed to convert $fileName during first pass",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                compressingItems.remove(item)
+                                compressingAdapter.notifyDataSetChanged()
+                            }
                         }
                     }
-
-
-                    Log.i("Tag", Arrays.deepToString(session.arguments))
-                    Log.i("Tag", session.output)
-
-
+                    item.status = "First pass running"
+                    item.session = firstPassSession
+                    Log.i("Lantau", Arrays.deepToString(firstPassSession.arguments))
                     compressingAdapter.notifyDataSetChanged()
                 } else {
                     Toast.makeText(
@@ -190,7 +228,7 @@ class MainActivity : AppCompatActivity() {
         val compressingItems: MutableList<CompressingItem> = mutableListOf()
         val compressingAdapter = CompressingAdapter(compressingItems)
 
-        val completedItems: MutableList<CompletedItem> = mutableListOf()
+        private val completedItems: MutableList<CompletedItem> = mutableListOf()
         val completedAdapter = CompletedAdapter(completedItems)
     }
 }

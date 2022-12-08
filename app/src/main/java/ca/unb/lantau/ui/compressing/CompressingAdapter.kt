@@ -3,6 +3,7 @@ package ca.unb.lantau.ui.compressing
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,8 @@ class CompressingAdapter(private val mCompressingItems: MutableList<CompressingI
         val filename: TextView = itemView.findViewById(R.id.compressing_filename)
         val date: TextView = itemView.findViewById(R.id.compressing_date)
         val progress: ProgressBar = itemView.findViewById(R.id.compressing_progress)
+        val status: TextView = itemView.findViewById(R.id.compressing_status)
+        val cancelButton: ImageButton = itemView.findViewById(R.id.compressing_cancel)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -27,7 +30,12 @@ class CompressingAdapter(private val mCompressingItems: MutableList<CompressingI
         holder.filename.text = compressingItem.filename
         holder.date.text = compressingItem.date.toString()
         holder.progress.progress = compressingItem.progress.toInt()
-
+        holder.progress.visibility = View.INVISIBLE
+        holder.status.text = compressingItem.status
+        holder.status.visibility = View.INVISIBLE
+        holder.cancelButton.setOnClickListener {
+            compressingItem.session!!.cancel()
+        }
     }
 
     override fun getItemCount(): Int {
